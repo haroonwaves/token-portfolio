@@ -1,0 +1,55 @@
+version: '0.2'
+language: en
+allowCompoundWords: true
+useGitignore: true
+gitignoreRoot: '.' # Prevent searching for .gitignore files past root
+
+ignorePaths:
+  - '**/*.{png,jpg,jpeg,gif,svg,icns}'
+  - '**/*.min.*'
+
+words:
+  - cced
+  - cdylib
+  - chromium
+  - cmdk
+  - coep
+  - consolas
+  - coop
+  - cursorrules
+  - decolor
+  - degen
+  - dkdhi
+  - easycode
+  - esbenp
+  - eslint
+  - lucide
+  - nums
+  - postcss
+  - rlib
+  - sahpool
+  - serde
+  - shadcn
+  - sonarjs
+  - tailwind
+  - tauri
+  - testid
+  - tsbuildinfo
+  - tsconfig
+  - tseslint
+  - typecheck
+  - vaul
+  - vite
+  - worktrees
+  - zustand
+
+dictionaries:
+  - css
+  - html
+  - node
+  - npm
+  - typescript
+  - rust
+  - rust-common
+  - companies
+  - misc
