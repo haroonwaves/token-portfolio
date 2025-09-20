@@ -1,72 +1,20 @@
-import { useMemo, useState, useCallback } from 'react';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Line, LineChart } from 'recharts';
+import { useMemo, useState, useCallback, useEffect } from 'react';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
+import { ListRow } from '@/components/watchlist/ListRow';
+
 import { type Token } from '@/store/watchlistSlice';
 import { type CoinGeckoCoin } from '@/api/coingecko';
-import { Trash2 } from 'lucide-react';
+import type { Row } from '@/components/watchlist/ListRow';
 
 interface WatchlistProps {
 	tokens: Token[];
 	prices: CoinGeckoCoin[];
-	onUpdateHoldings: (id: string, holdings: number) => void;
-	onRemoveToken: (id: string) => void;
 }
 
-interface SparklineProps {
-	data: number[];
-	color?: string;
-}
-
-function Sparkline({ data, color = 'hsl(var(--chart-1))' }: SparklineProps) {
-	if (!data || data.length === 0) {
-		return <div className="text-muted-foreground h-8 w-20 text-xs">No data</div>;
-	}
-
-	const chartData = data.map((value, index) => ({
-		index,
-		value,
-	}));
-
-	return (
-		<div className="h-8 w-20">
-			<ChartContainer
-				config={{
-					value: {
-						label: 'Price',
-						color,
-					},
-				}}
-			>
-				<LineChart data={chartData}>
-					<Line
-						type="monotone"
-						dataKey="value"
-						stroke={color}
-						strokeWidth={1.5}
-						dot={false}
-						activeDot={false}
-					/>
-					<ChartTooltip content={<ChartTooltipContent />} />
-				</LineChart>
-			</ChartContainer>
-		</div>
-	);
-}
-
-export function Watchlist({ tokens, prices, onUpdateHoldings, onRemoveToken }: WatchlistProps) {
-	const [editingHoldings, setEditingHoldings] = useState<{ [key: string]: string }>({});
+export function Watchlist({ tokens, prices }: WatchlistProps) {
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 10;
 
 	const tableData = useMemo(() => {
 		return tokens.map((token) => {
@@ -87,145 +35,62 @@ export function Watchlist({ tokens, prices, onUpdateHoldings, onRemoveToken }: W
 		});
 	}, [tokens, prices]);
 
-	const handleHoldingsChange = useCallback((id: string, value: string) => {
-		setEditingHoldings((prev) => ({ ...prev, [id]: value }));
+	const paginatedData: Row[] = useMemo(() => {
+		const startIndex = (currentPage - 1) * itemsPerPage;
+		const endIndex = startIndex + itemsPerPage;
+		return tableData.slice(startIndex, endIndex);
+	}, [tableData, currentPage, itemsPerPage]);
+
+	const totalPages = Math.ceil(tokens.length / itemsPerPage);
+
+	const handlePageChange = useCallback((page: number) => {
+		setCurrentPage(page);
 	}, []);
 
-	const handleHoldingsBlur = useCallback(
-		(id: string) => {
-			const value = editingHoldings[id];
-			if (value !== undefined) {
-				const numericValue = parseFloat(value) || 0;
-				onUpdateHoldings(id, numericValue);
-				setEditingHoldings((prev) => {
-					const newState = { ...prev };
-					delete newState[id];
-					return newState;
-				});
-			}
-		},
-		[editingHoldings, onUpdateHoldings]
-	);
-
-	const formatCurrency = (value: number) => {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2,
-		}).format(value);
-	};
-
-	const formatPrice = (value: number) => {
-		if (value < 0.01) return `$${value.toFixed(6)}`;
-		return formatCurrency(value);
-	};
-
-	const formatPercentage = (value: number) => {
-		return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-	};
+	// Reset to page 1 when tokens change
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [tokens.length]);
 
 	if (tokens.length === 0) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Watchlist</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="text-muted-foreground py-8 text-center">
-						<p className="text-lg font-medium">No tokens in watchlist</p>
-						<p className="text-sm">Add tokens to start tracking your portfolio</p>
-					</div>
-				</CardContent>
-			</Card>
+			<div className="py-8 text-center text-gray-400">
+				<p className="text-lg font-medium">No tokens in watchlist</p>
+				<p className="text-sm">Add tokens to start tracking your portfolio</p>
+			</div>
 		);
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Watchlist</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<div className="rounded-md border">
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Token</TableHead>
-								<TableHead className="text-right">Price</TableHead>
-								<TableHead className="text-right">24h</TableHead>
-								<TableHead className="text-center">7d Chart</TableHead>
-								<TableHead className="text-right">Holdings</TableHead>
-								<TableHead className="text-right">Value</TableHead>
-								<TableHead className="w-12"></TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{tableData.map((token) => (
-								<TableRow key={token.id}>
-									<TableCell>
-										<div className="flex items-center space-x-3">
-											<img
-												src={token.image}
-												alt={token.name}
-												className="h-8 w-8 rounded-full"
-												onError={(e) => {
-													const target = e.target as HTMLImageElement;
-													target.style.display = 'none';
-												}}
-											/>
-											<div>
-												<div className="font-medium">{token.name}</div>
-												<div className="text-muted-foreground text-sm">
-													{token.symbol.toUpperCase()}
-												</div>
-											</div>
-										</div>
-									</TableCell>
-									<TableCell className="text-right font-mono">
-										{formatPrice(token.currentPrice)}
-									</TableCell>
-									<TableCell className="text-right">
-										<Badge variant={token.isPositive ? 'default' : 'destructive'}>
-											{formatPercentage(token.change24h)}
-										</Badge>
-									</TableCell>
-									<TableCell className="text-center">
-										<Sparkline
-											data={token.sparklineData}
-											color={token.isPositive ? 'hsl(142, 76%, 36%)' : 'hsl(0, 84%, 60%)'}
-										/>
-									</TableCell>
-									<TableCell className="text-right">
-										<Input
-											type="number"
-											value={editingHoldings[token.id] ?? token.holdings}
-											onChange={(e) => handleHoldingsChange(token.id, e.target.value)}
-											onBlur={() => handleHoldingsBlur(token.id)}
-											className="w-24 text-right"
-											min="0"
-											step="0.000001"
-										/>
-									</TableCell>
-									<TableCell className="text-right font-mono">
-										{formatCurrency(token.value)}
-									</TableCell>
-									<TableCell>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => onRemoveToken(token.id)}
-											className="h-8 w-8 p-0"
-										>
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-				</div>
-			</CardContent>
-		</Card>
+		<div className="overflow-hidden">
+			<div className="overflow-x-auto">
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead className="text-left">Token</TableHead>
+							<TableHead className="text-left">Price</TableHead>
+							<TableHead className="text-left">24h %</TableHead>
+							<TableHead className="text-left">Sparkline (7d)</TableHead>
+							<TableHead className="text-left">Holdings</TableHead>
+							<TableHead className="text-left">Value</TableHead>
+							<TableHead className="w-12"></TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{paginatedData.map((token) => (
+							<ListRow key={token.id} tokens={tokens} row={token} />
+						))}
+					</TableBody>
+				</Table>
+			</div>
+
+			<Pagination
+				currentPage={currentPage}
+				totalPages={totalPages}
+				totalItems={tokens.length}
+				itemsPerPage={itemsPerPage}
+				onPageChange={handlePageChange}
+			/>
+		</div>
 	);
 }

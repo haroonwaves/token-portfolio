@@ -1,28 +1,17 @@
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-interface HeaderProps {
-	handleRefresh: () => void;
-	loading: boolean;
-}
-
-export function Header({ handleRefresh, loading }: Readonly<HeaderProps>) {
+export function Header() {
 	return (
 		<header>
-			<div className="container mx-auto px-2 py-4">
+			<div className="px-8 py-6">
 				<div className="flex items-center justify-between">
-					<div>
-						<h1 className="text-2xl font-bold">Token Portfolio</h1>
-						<p className="text-muted-foreground">Track your cryptocurrency investments</p>
+					<div className="flex items-center space-x-3">
+						<div className="flex h-8 w-8 items-center justify-center rounded bg-green-500">
+							<span className="text-sm font-bold text-white">T</span>
+						</div>
+						<h1 className="text-2xl font-bold text-white">Token Portfolio</h1>
 					</div>
-					<div className="flex items-center space-x-4">
-						<Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
-							<RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-							Refresh Prices
-						</Button>
-						<ConnectButton />
-					</div>
+					<ConnectButton />
 				</div>
 			</div>
 		</header>

@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	type ChartConfig,
 	ChartContainer,
@@ -33,7 +32,7 @@ const chartConfig: ChartConfig = {
 	},
 };
 
-export function Portfolio({ tokens, prices, lastUpdated, onRefresh }: PortfolioProps) {
+export function Portfolio({ tokens, prices, lastUpdated }: PortfolioProps) {
 	const portfolioData = useMemo(() => {
 		const totalValue = tokens.reduce((sum, token) => {
 			const price = prices.find((p) => p.id === token.id);
@@ -75,76 +74,80 @@ export function Portfolio({ tokens, prices, lastUpdated, onRefresh }: PortfolioP
 	};
 
 	return (
-		<Card className="dark-2! w-full">
-			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-				<CardTitle className="text-2xl font-bold">Portfolio</CardTitle>
-				{onRefresh && (
-					<button
-						onClick={onRefresh}
-						className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-					>
-						Refresh
-					</button>
-				)}
-			</CardHeader>
-			<CardContent className="space-y-4">
-				<div className="text-3xl font-bold">{formatCurrency(portfolioData.totalValue)}</div>
-
-				{lastUpdated && (
-					<p className="text-muted-foreground text-sm">Last updated: {formatTime(lastUpdated)}</p>
-				)}
-
-				{portfolioData.chartData.length > 0 ? (
-					<div className="h-[300px]">
-						<ChartContainer config={chartConfig}>
-							<PieChart>
-								<Pie
-									data={portfolioData.chartData}
-									dataKey="value"
-									nameKey="name"
-									cx="50%"
-									cy="50%"
-									outerRadius={100}
-									innerRadius={60}
-									strokeWidth={0}
-								>
-									{portfolioData.chartData.map((entry, index) => (
-										<Cell key={`cell-${index}`} fill={entry.color} />
-									))}
-								</Pie>
-								<ChartTooltip content={<ChartTooltipContent />} />
-							</PieChart>
-						</ChartContainer>
+		<div className="w-full">
+			{portfolioData.chartData.length > 0 ? (
+				<div className="flex flex-col lg:flex-row lg:gap-12">
+					{/* Portfolio Total - Left on desktop, top on mobile */}
+					<div className="mb-8 flex flex-col justify-between lg:mb-0 lg:w-1/2">
+						<div>
+							<h2 className="mb-4 text-xl font-bold text-white">Portfolio Total</h2>
+							<div className="mb-4 text-2xl font-bold text-white lg:text-5xl">
+								{formatCurrency(portfolioData.totalValue)}
+							</div>
+						</div>
+						{lastUpdated && (
+							<p className="text-sm text-gray-400">Last updated: {formatTime(lastUpdated)}</p>
+						)}
 					</div>
-				) : (
-					<div className="text-muted-foreground flex h-[300px] items-center justify-center">
-						<div className="text-center">
-							<p className="text-lg font-medium">No tokens in portfolio</p>
-							<p className="text-sm">Add tokens to see your portfolio breakdown</p>
+
+					{/* Chart and Legend - Right on desktop, bottom on mobile */}
+					<div className="lg:flex-1">
+						<h2 className="mb-6 text-xl font-bold text-white">Portfolio Total</h2>
+
+						<div className="flex flex-col items-center space-y-8 lg:flex-row lg:items-start lg:space-y-0 lg:space-x-8">
+							{/* Donut Chart */}
+							<div className="flex-shrink-0">
+								<ChartContainer config={chartConfig} className="h-80 w-80 lg:h-64 lg:w-64">
+									<PieChart>
+										<Pie
+											data={portfolioData.chartData}
+											dataKey="value"
+											nameKey="name"
+											cx="50%"
+											cy="50%"
+											outerRadius={100}
+											innerRadius={50}
+											strokeWidth={0}
+										>
+											{portfolioData.chartData.map((entry, index) => (
+												<Cell key={`cell-${index}`} fill={entry.color} />
+											))}
+										</Pie>
+										<ChartTooltip content={<ChartTooltipContent />} />
+									</PieChart>
+								</ChartContainer>
+							</div>
+
+							{/* Legend */}
+							<div className="flex-1 space-y-4">
+								{portfolioData.chartData.map((item, index) => (
+									<div key={index} className="flex items-center justify-between">
+										<div className="flex items-center space-x-3">
+											<div
+												className="h-4 w-4 rounded-full"
+												style={{ backgroundColor: item.color }}
+											/>
+											<span className="text-base font-medium text-white">{item.name}</span>
+										</div>
+										<div className="text-right">
+											<div className="text-base font-medium text-white">
+												{item.percentage.toFixed(1)}%
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
 						</div>
 					</div>
-				)}
-
-				{portfolioData.chartData.length > 0 && (
-					<div className="space-y-2">
-						<h4 className="text-sm font-medium">Holdings</h4>
-						<div className="space-y-1">
-							{portfolioData.chartData.map((item, index) => (
-								<div key={index} className="flex items-center justify-between text-sm">
-									<div className="flex items-center space-x-2">
-										<div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-										<span className="font-medium">{item.name}</span>
-									</div>
-									<div className="text-right">
-										<div className="font-medium">{formatCurrency(item.value)}</div>
-										<div className="text-muted-foreground">{item.percentage.toFixed(1)}%</div>
-									</div>
-								</div>
-							))}
-						</div>
+				</div>
+			) : (
+				<div className="flex h-64 items-center justify-center text-gray-400">
+					<div className="text-center">
+						<p className="text-lg font-medium">No tokens in portfolio</p>
+						<p className="text-sm">Add tokens to see your portfolio breakdown</p>
 					</div>
-				)}
-			</CardContent>
-		</Card>
+				</div>
+			)}
+		</div>
 	);
 }

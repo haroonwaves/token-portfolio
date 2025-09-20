@@ -6,12 +6,9 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Search } from 'lucide-react';
 import { type SearchResult, fetchTokens, fetchTrending } from '@/api/coingecko';
-import { Search, Plus } from 'lucide-react';
 
 import type { TokenInput } from '@/store/watchlistSlice';
 
@@ -120,37 +117,36 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button>
-					<Plus className="mr-2 h-4 w-4" />
-					Add Token
-				</Button>
+				<button className="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600">
+					+ Add Token
+				</button>
 			</DialogTrigger>
-			<DialogContent className="dark flex max-h-[80vh] max-w-2xl flex-col overflow-hidden">
+			<DialogContent className="dark max-h-[80vh] max-w-2xl overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Add Tokens to Watchlist</DialogTitle>
+					<DialogTitle className="text-xl font-semibold">Search + Add Token Modal</DialogTitle>
 				</DialogHeader>
 
-				<div className="flex flex-1 flex-col space-y-4 overflow-hidden">
+				<div className="flex flex-1 flex-col space-y-6">
 					{/* Search Input */}
 					<div className="relative">
-						<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-						<Input
-							placeholder="Search for tokens..."
+						<Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+						<input
+							placeholder="Search tokens (e.g., ETH, SOL)..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className="pl-10"
+							className="w-full rounded-lg border border-gray-600 bg-gray-700 py-3 pr-4 pl-10 text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-none"
 						/>
 					</div>
 
 					{/* Error State */}
 					{error && (
-						<div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{error}</div>
+						<div className="rounded-lg bg-red-900/20 p-3 text-sm text-red-400">{error}</div>
 					)}
 
 					{/* Loading State */}
 					{loading && (
-						<div className="text-muted-foreground py-8 text-center">
-							<div className="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-b-2"></div>
+						<div className="py-8 text-center text-gray-400">
+							<div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-green-500"></div>
 							<p className="mt-2">Loading...</p>
 						</div>
 					)}
@@ -158,8 +154,9 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 					{/* Tokens List */}
 					{!loading && !error && (
 						<div className="flex-1 overflow-y-auto">
+							{!searchQuery.trim() && <h3 className="mb-4 font-medium text-white">Trending</h3>}
 							{displayTokens.length === 0 ? (
-								<div className="text-muted-foreground py-8 text-center">
+								<div className="py-8 text-center text-gray-400">
 									<p>No tokens found</p>
 									{searchQuery && <p className="text-sm">Try a different search term</p>}
 								</div>
@@ -168,14 +165,14 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 									{displayTokens.map((token) => (
 										<Card
 											key={token.id}
-											className={`cursor-pointer transition-colors ${
+											className={`cursor-pointer rounded-lg p-4 transition-colors ${
 												isTokenSelected(token.id)
-													? 'ring-primary bg-primary/5 ring-2'
-													: 'hover:bg-muted/50'
+													? 'border border-green-500 bg-green-900/20'
+													: 'hover:bg-gray-700'
 											} ${isTokenAlreadyAdded(token.id) ? 'opacity-50' : ''}`}
 											onClick={() => !isTokenAlreadyAdded(token.id) && handleTokenSelect(token.id)}
 										>
-											<CardContent className="p-4">
+											<CardContent>
 												<div className="flex items-center justify-between">
 													<div className="flex items-center space-x-3">
 														<img
@@ -188,18 +185,23 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 															}}
 														/>
 														<div>
-															<div className="font-medium">{token.name}</div>
-															<div className="text-muted-foreground text-sm">
+															<div className="font-medium text-white">{token.name}</div>
+															<div className="text-sm text-gray-400">
 																{token.symbol.toUpperCase()}
 															</div>
 														</div>
 													</div>
 													<div className="flex items-center space-x-2">
 														{isTokenAlreadyAdded(token.id) && (
-															<Badge variant="secondary">Already Added</Badge>
+															<span className="text-sm text-gray-500">Already Added</span>
 														)}
 														{isTokenSelected(token.id) && !isTokenAlreadyAdded(token.id) && (
-															<Badge variant="default">Selected</Badge>
+															<div className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500">
+																<div className="h-2 w-2 rounded-full bg-white"></div>
+															</div>
+														)}
+														{!isTokenSelected(token.id) && !isTokenAlreadyAdded(token.id) && (
+															<div className="h-4 w-4 rounded-full border border-gray-500"></div>
 														)}
 													</div>
 												</div>
@@ -212,21 +214,28 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 					)}
 
 					{/* Footer */}
-					<div className="flex items-center justify-between border-t pt-4">
-						<div className="text-muted-foreground text-sm">
+					<div className="flex items-center justify-between border-t border-gray-700 pt-4">
+						<div className="text-sm text-gray-400">
 							{selectedTokens.size > 0 && (
 								<span>
 									{selectedTokens.size} token{selectedTokens.size !== 1 ? 's' : ''} selected
 								</span>
 							)}
 						</div>
-						<div className="flex space-x-2">
-							<Button variant="outline" onClick={() => setOpen(false)}>
-								Cancel
-							</Button>
-							<Button onClick={handleAddTokens} disabled={!hasSelectedTokens}>
+						<div className="flex space-x-3">
+							<button
+								onClick={() => setOpen(false)}
+								className="rounded-lg bg-gray-700 px-4 py-2 text-gray-300 transition-colors hover:bg-gray-600"
+							>
 								Add to Watchlist
-							</Button>
+							</button>
+							<button
+								onClick={handleAddTokens}
+								disabled={!hasSelectedTokens}
+								className="rounded-lg bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+							>
+								Save
+							</button>
 						</div>
 					</div>
 				</div>
