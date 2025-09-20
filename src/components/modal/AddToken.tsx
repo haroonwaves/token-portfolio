@@ -125,7 +125,7 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 					Add Token
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="flex max-h-[80vh] max-w-2xl flex-col overflow-hidden">
+			<DialogContent className="dark flex max-h-[80vh] max-w-2xl flex-col overflow-hidden">
 				<DialogHeader>
 					<DialogTitle>Add Tokens to Watchlist</DialogTitle>
 				</DialogHeader>

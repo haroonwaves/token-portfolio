@@ -75,7 +75,7 @@ export function Portfolio({ tokens, prices, lastUpdated, onRefresh }: PortfolioP
 	};
 
 	return (
-		<Card className="w-full">
+		<Card className="dark-2! w-full">
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-2xl font-bold">Portfolio</CardTitle>
 				{onRefresh && (

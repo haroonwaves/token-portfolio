@@ -118,3 +118,11 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+@utility dark {
+	@apply bg-[#212124] text-[#F4F4F5];
+}
+
+@utility dark-2 {
+	@apply bg-[#27272A] text-[#F4F4F5];
+}

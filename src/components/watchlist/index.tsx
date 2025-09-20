@@ -117,9 +117,7 @@ export function Watchlist({ tokens, prices, onUpdateHoldings, onRemoveToken }: W
 	};
 
 	const formatPrice = (value: number) => {
-		if (value < 0.01) {
-			return `$${value.toFixed(6)}`;
-		}
+		if (value < 0.01) return `$${value.toFixed(6)}`;
 		return formatCurrency(value);
 	};
 
