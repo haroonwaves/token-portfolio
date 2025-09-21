@@ -27,7 +27,7 @@ export function usePrices(ids: string[]): UsePricesResult {
 			setData((prev) => ({ ...prev, loading: false, error: null, prices: res, refresh: fetch }));
 		} catch (e) {
 			const errorMessage = e instanceof Error ? e.message : 'Failed to fetch prices';
-			toast.error(errorMessage);
+			toast.error(`Error: ${errorMessage}. Please try after sometime.`);
 			setData((prev) => ({
 				...prev,
 				loading: false,

@@ -18,7 +18,7 @@ export function Content() {
 	const { tokens } = useSelector((state: RootState) => state.watchlist);
 	const tokenIds = useMemo(() => tokens.map((token: { id: string }) => token.id), [tokens]);
 
-	const { prices, refresh, loading } = usePrices(tokenIds);
+	const { prices, refresh, loading, error } = usePrices(tokenIds);
 
 	useEffect(() => {
 		if (prices.length > 0) setLastUpdated(new Date());
@@ -55,7 +55,7 @@ export function Content() {
 								<Button
 									onClick={refresh}
 									className={`custom-button-2!`}
-									disabled={loading || prices.length === 0}
+									disabled={loading || (prices.length === 0 && !error)}
 								>
 									<RefreshCcw
 										className={`h-4 w-4 transition-transform duration-300 ${loading ? 'animate-spin' : ''}`}

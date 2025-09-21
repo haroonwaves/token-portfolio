@@ -27,6 +27,8 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 
 	const debouncedSearch = useDebounce<string>(searchTerm, 300);
 
+	console.log(selectedTokens);
+
 	const loadTrending = async () => {
 		try {
 			setLoading(true);
@@ -62,18 +64,22 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 
 	const handleAddTokens = () => {
 		const allTokens = [...searchResults, ...trendingTokens];
-		const tokensToAdd = allTokens
-			.filter((token) => selectedTokens.has(token.id))
-			.filter((token) => !existingTokens.includes(token.id))
-			.map((token) => ({
-				id: token.id,
-				name: token.name,
-				symbol: token.symbol,
-				image: token.thumb,
-			}));
 
-		if (tokensToAdd.length > 0) {
-			onAddTokens(tokensToAdd);
+		const tokensToAdd = new Map<string, TokenInput>();
+
+		for (const token of allTokens) {
+			if (selectedTokens.has(token.id) && !existingTokens.includes(token.id)) {
+				tokensToAdd.set(token.id, {
+					id: token.id,
+					name: token.name,
+					symbol: token.symbol,
+					image: token.thumb,
+				});
+			}
+		}
+
+		if (tokensToAdd.size > 0) {
+			onAddTokens([...tokensToAdd.values()]);
 			setSelectedTokens(new Set());
 			setSearchTerm('');
 			setSearchResults([]);
@@ -187,7 +193,7 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 					</Loader>
 
 					{/* Footer */}
-					<div className="flex items-center justify-end space-x-3 border-t border-gray-700 px-3 py-4">
+					<div className="flex items-center justify-end space-x-3 border-t px-3 py-4">
 						<Button
 							className="custom-button!"
 							onClick={handleAddTokens}

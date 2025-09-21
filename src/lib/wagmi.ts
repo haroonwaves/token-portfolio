@@ -4,7 +4,7 @@ import { mainnet, goerli, sepolia } from 'wagmi/chains';
 
 const { connectors } = getDefaultWallets({
 	appName: 'Token Portfolio',
-	projectId: 'YOUR_PROJECT_ID', // You can get this from WalletConnect
+	projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? 'DEFAULT_TEST_PROJECT_ID', // You can get this from WalletConnect
 });
 
 export const config = createConfig({

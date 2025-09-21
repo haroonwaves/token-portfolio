@@ -67,7 +67,7 @@ export function Watchlist({ tokens, prices, loading }: WatchlistProps) {
 				<Table className="overflow-hidden">
 					<TableHeader>
 						<TableRow className="dark-2 hover:dark-2! rounded-t-xl!">
-							<TableHead className="rounded-t-xl! px-7 py-5 text-left font-medium text-[#A1A1AA]">
+							<TableHead className="rounded-tl-xl! px-7 py-5 text-left font-medium text-[#A1A1AA]">
 								Token
 							</TableHead>
 							<TableHead className="text-left font-medium text-[#A1A1AA]">Price</TableHead>
@@ -75,7 +75,7 @@ export function Watchlist({ tokens, prices, loading }: WatchlistProps) {
 							<TableHead className="text-left font-medium text-[#A1A1AA]">Sparkline (7d)</TableHead>
 							<TableHead className="text-left font-medium text-[#A1A1AA]">Holdings</TableHead>
 							<TableHead className="text-left font-medium text-[#A1A1AA]">Value</TableHead>
-							<TableHead className="w-12 rounded-t-xl! font-medium text-[#A1A1AA]"></TableHead>
+							<TableHead className="w-12 rounded-tr-xl! font-medium text-[#A1A1AA]"></TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -84,7 +84,7 @@ export function Watchlist({ tokens, prices, loading }: WatchlistProps) {
 								<TableCell colSpan={7} className="py-8">
 									<div className="flex h-26 flex-col items-center justify-center text-[#A1A1AA]/60">
 										<p className="text-lg font-medium">No tokens in watchlist</p>
-										<p className="text-sm">Add tokens to start tracking your portfolio</p>
+										<p className="text-sm">Add tokens to start tracking prices</p>
 									</div>
 								</TableCell>
 							</TableRow>
@@ -92,7 +92,7 @@ export function Watchlist({ tokens, prices, loading }: WatchlistProps) {
 							paginatedData.map((token) => <ListRow key={token.id} tokens={tokens} row={token} />)
 						)}
 						<TableRow>
-							<TableCell colSpan={7} className="rounded-b-xl border-t border-gray-700 px-7 py-4">
+							<TableCell colSpan={7} className="rounded-b-xl border-t px-7 py-4">
 								<Pagination
 									currentPage={currentPage}
 									totalPages={totalPages}

@@ -137,8 +137,8 @@ export function Portfolio({ tokens, prices, lastUpdated, loading }: PortfolioPro
 				) : !loading ? (
 					<div className="flex h-64 items-center justify-center text-[#A1A1AA]/60">
 						<div className="text-center">
-							<p className="text-lg font-medium">No tokens in portfolio</p>
-							<p className="text-sm">Add tokens to see your portfolio breakdown</p>
+							<p className="text-lg font-medium">No holdings in watchlist</p>
+							<p className="text-sm">Add holdings to see your portfolio breakdown</p>
 						</div>
 					</div>
 				) : null}
