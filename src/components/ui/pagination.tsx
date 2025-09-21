@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 interface PaginationProps {
 	currentPage: number;
 	totalPages: number;
@@ -19,30 +21,30 @@ export function Pagination({
 	const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
 	return (
-		<div
-			className={`mt-4 flex flex-col items-center justify-between space-y-2 border-t border-gray-700 pt-4 sm:mt-6 sm:flex-row sm:space-y-0 ${className}`}
-		>
-			<div className="text-xs text-gray-400 sm:text-sm">
+		<div className={`flex items-center justify-between space-y-2 ${className}`}>
+			<div className="m-0 text-sm text-[#A1A1AA]">
 				{startItem} - {endItem} of {totalItems} results
 			</div>
 			<div className="flex items-center space-x-2">
-				<span className="text-xs text-gray-400 sm:text-sm">
+				<span className="text-sm text-[#A1A1AA]">
 					{currentPage} of {totalPages} pages
 				</span>
-				<button
-					className="rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm"
+				<Button
+					className="hover:lighten cursor-pointer"
+					variant="ghost"
 					onClick={() => onPageChange(currentPage - 1)}
 					disabled={currentPage === 1}
 				>
 					Prev
-				</button>
-				<button
-					className="rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm"
+				</Button>
+				<Button
+					className="hover:lighten cursor-pointer"
+					variant="ghost"
 					onClick={() => onPageChange(currentPage + 1)}
-					disabled={currentPage === totalPages}
+					disabled={totalItems === 0 || currentPage === totalPages}
 				>
 					Next
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

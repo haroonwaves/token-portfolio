@@ -35,7 +35,15 @@ export function Sparkline({ data, color = 'hsl(var(--chart-1))' }: SparklineProp
 						dot={false}
 						activeDot={false}
 					/>
-					<ChartTooltip content={<ChartTooltipContent />} />
+					<ChartTooltip
+						wrapperStyle={{
+							outline: 'none',
+							zIndex: 1000,
+							position: 'absolute',
+							top: '-58px',
+						}}
+						content={<ChartTooltipContent className="dark! border-[#F4F4F5]/20" />}
+					/>
 				</LineChart>
 			</ChartContainer>
 		</div>

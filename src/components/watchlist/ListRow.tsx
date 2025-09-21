@@ -1,7 +1,7 @@
 import { TableRow } from '@/components/ui/table';
 import { TableCell } from '@/components/ui/table';
 import { Sparkline } from '@/components/watchlist/Sparkline';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
@@ -12,6 +12,8 @@ import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { removeToken } from '@/store/watchlistSlice';
 import { setHoldings } from '@/store/watchlistSlice';
 import { useDispatch } from 'react-redux';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 import type { Token } from '@/store/watchlistSlice';
 
@@ -25,8 +27,11 @@ export interface Row extends Token {
 
 export function ListRow({ tokens, row }: { tokens: Token[]; row: Row }) {
 	const dispatch = useDispatch();
+
 	const [editingHoldings, setEditingHoldings] = useState<{ [key: string]: string }>({});
 	const [editingTokenId, setEditingTokenId] = useState<string | null>(null);
+
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleHoldingsChange = useCallback((id: string, value: string) => {
 		setEditingHoldings((prev) => ({ ...prev, [id]: value }));
@@ -39,6 +44,7 @@ export function ListRow({ tokens, row }: { tokens: Token[]; row: Row }) {
 				...prev,
 				[id]: tokens.find((t) => t.id === id)?.holdings.toString() || '0',
 			}));
+			setTimeout(() => inputRef.current?.focus(), 250);
 		},
 		[tokens]
 	);
@@ -74,71 +80,76 @@ export function ListRow({ tokens, row }: { tokens: Token[]; row: Row }) {
 		return formatCurrency(value);
 	};
 
-	const formatPercentage = (value: number) => {
-		return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-	};
+	const formatPercentage = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+
+	const cellClass = 'font-normal text-sm';
 
 	return (
-		<TableRow key={row.id}>
+		<TableRow key={row.id} className="hover:dark-2! border-none">
 			<TableCell>
-				<div className="flex items-center space-x-3">
+				<div className="mr-2 flex w-full items-center space-x-3 px-4 py-1">
 					<img
 						src={row.image}
 						alt={row.name}
-						className="h-8 w-8 rounded-full"
+						className="h-8 w-8 rounded-md"
 						onError={(e) => {
 							const target = e.target as HTMLImageElement;
 							target.style.display = 'none';
 						}}
 					/>
-					<div>
-						<div className="font-medium text-white">{row.name}</div>
-						<div className="text-sm text-gray-400">{row.symbol.toUpperCase()}</div>
+
+					<div className={cellClass}>
+						{row.name} <span className={`text-[#A1A1AA]`}>({row.symbol.toUpperCase()})</span>
 					</div>
 				</div>
 			</TableCell>
-			<TableCell className="font-mono text-white">{formatPrice(row.currentPrice)}</TableCell>
+			<TableCell className={`${cellClass} text-[#A1A1AA]`}>
+				{formatPrice(row.currentPrice)}
+			</TableCell>
 			<TableCell>
-				<span
-					className={`rounded px-2 py-1 text-sm font-medium ${
-						row.isPositive ? 'text-green-400' : 'text-red-400'
-					}`}
-				>
+				<span className={`${cellClass} ${row.isPositive ? 'text-green-400' : 'text-red-400'}`}>
 					{formatPercentage(row.change24h)}
 				</span>
 			</TableCell>
-			<TableCell className="hidden text-center sm:table-cell">
-				<Sparkline data={row.sparklineData} color={row.isPositive ? '#10b981' : '#ef4444'} />
+			<TableCell className="text-center">
+				<Sparkline data={row.sparklineData} color={row.isPositive ? '#05df72' : '#ff6467'} />
 			</TableCell>
 			<TableCell>
 				{editingTokenId === row.id ? (
 					<div className="flex items-center space-x-2">
-						<input
+						<Input
+							ref={inputRef}
+							className="w-24 focus-visible:border-[#A9E851] focus-visible:ring-[#A9E851]/30"
 							type="number"
 							value={editingHoldings[row.id] ?? row.holdings}
 							onChange={(e) => handleHoldingsChange(row.id, e.target.value)}
-							className="w-24 rounded border border-gray-600 bg-gray-700 px-2 py-1 text-sm text-white focus:ring-2 focus:ring-green-500 focus:outline-none"
+							onBlur={() => handleSaveHoldings(row.id)}
 							min="0"
-							step="0.000001"
+							step="0.0001"
 						/>
-						<button
-							onClick={() => handleSaveHoldings(row.id)}
-							className="rounded bg-green-500 px-2 py-1 text-xs text-white hover:bg-green-600"
-						>
+						<Button className="custom-button!" onClick={() => handleSaveHoldings(row.id)}>
 							Save
-						</button>
+						</Button>
 					</div>
 				) : (
-					<span className="text-white">{row.holdings}</span>
+					<span
+						role="button"
+						tabIndex={0}
+						className={`${cellClass} text-[#F4F4F5]`}
+						onDoubleClick={() => handleEditHoldings(row.id)}
+						onKeyDown={() => {}}
+					>
+						{row.holdings}
+					</span>
 				)}
 			</TableCell>
-			<TableCell className="font-mono text-white">{formatCurrency(row.value)}</TableCell>
+			<TableCell className={`${cellClass}`}>{formatCurrency(row.value)}</TableCell>
 			<TableCell>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<button className="h-8 w-8 p-0 text-gray-400 transition-colors hover:text-white">
+						<Button className="custom-button-2!">
 							<MoreHorizontal className="h-4 w-4" />
-						</button>
+						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-48">
 						<DropdownMenuItem onClick={() => handleEditHoldings(row.id)} className="cursor-pointer">

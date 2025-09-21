@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { fetchPrices, type CoinGeckoCoin } from '@/api/coingecko';
+import { toast } from 'sonner';
 
 interface UsePricesResult {
 	loading: boolean;
@@ -26,13 +27,11 @@ export function usePrices(ids: string[]): UsePricesResult {
 			setData((prev) => ({ ...prev, loading: false, error: null, prices: res, refresh: fetch }));
 		} catch (e) {
 			const errorMessage = e instanceof Error ? e.message : 'Failed to fetch prices';
-			console.error(errorMessage);
+			toast.error(errorMessage);
 			setData((prev) => ({
 				...prev,
 				loading: false,
 				error: errorMessage,
-				prices: [],
-				refresh: fetch,
 			}));
 		}
 	}, [ids]);

@@ -62,12 +62,8 @@ const slice = createSlice({
 			if (t) t.holdings = action.payload.holdings;
 			save(state);
 		},
-		setWatchlist(state, action) {
-			state.tokens = action.payload;
-			save(state);
-		},
 	},
 });
 
-export const { addTokens, removeToken, setHoldings, setWatchlist } = slice.actions;
+export const { addTokens, removeToken, setHoldings } = slice.actions;
 export default slice.reducer;

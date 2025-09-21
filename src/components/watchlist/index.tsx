@@ -1,6 +1,14 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
 import { Pagination } from '@/components/ui/pagination';
+import { Loader } from '@/components/ui/loader';
 import { ListRow } from '@/components/watchlist/ListRow';
 
 import { type Token } from '@/store/watchlistSlice';
@@ -10,9 +18,10 @@ import type { Row } from '@/components/watchlist/ListRow';
 interface WatchlistProps {
 	tokens: Token[];
 	prices: CoinGeckoCoin[];
+	loading: boolean;
 }
 
-export function Watchlist({ tokens, prices }: WatchlistProps) {
+export function Watchlist({ tokens, prices, loading }: WatchlistProps) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10;
 
@@ -52,45 +61,50 @@ export function Watchlist({ tokens, prices }: WatchlistProps) {
 		setCurrentPage(1);
 	}, [tokens.length]);
 
-	if (tokens.length === 0) {
-		return (
-			<div className="py-8 text-center text-gray-400">
-				<p className="text-lg font-medium">No tokens in watchlist</p>
-				<p className="text-sm">Add tokens to start tracking your portfolio</p>
-			</div>
-		);
-	}
-
 	return (
-		<div className="overflow-hidden">
-			<div className="overflow-x-auto">
-				<Table>
+		<Loader isLoading={loading}>
+			<div className="rounded-xl border">
+				<Table className="overflow-hidden">
 					<TableHeader>
-						<TableRow>
-							<TableHead className="text-left">Token</TableHead>
-							<TableHead className="text-left">Price</TableHead>
-							<TableHead className="text-left">24h %</TableHead>
-							<TableHead className="text-left">Sparkline (7d)</TableHead>
-							<TableHead className="text-left">Holdings</TableHead>
-							<TableHead className="text-left">Value</TableHead>
-							<TableHead className="w-12"></TableHead>
+						<TableRow className="dark-2 hover:dark-2! rounded-t-xl!">
+							<TableHead className="rounded-t-xl! px-7 py-5 text-left font-medium text-[#A1A1AA]">
+								Token
+							</TableHead>
+							<TableHead className="text-left font-medium text-[#A1A1AA]">Price</TableHead>
+							<TableHead className="text-left font-medium text-[#A1A1AA]">24h %</TableHead>
+							<TableHead className="text-left font-medium text-[#A1A1AA]">Sparkline (7d)</TableHead>
+							<TableHead className="text-left font-medium text-[#A1A1AA]">Holdings</TableHead>
+							<TableHead className="text-left font-medium text-[#A1A1AA]">Value</TableHead>
+							<TableHead className="w-12 rounded-t-xl! font-medium text-[#A1A1AA]"></TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{paginatedData.map((token) => (
-							<ListRow key={token.id} tokens={tokens} row={token} />
-						))}
+						{tokens.length === 0 ? (
+							<TableRow>
+								<TableCell colSpan={7} className="py-8">
+									<div className="flex h-26 flex-col items-center justify-center text-[#A1A1AA]/60">
+										<p className="text-lg font-medium">No tokens in watchlist</p>
+										<p className="text-sm">Add tokens to start tracking your portfolio</p>
+									</div>
+								</TableCell>
+							</TableRow>
+						) : (
+							paginatedData.map((token) => <ListRow key={token.id} tokens={tokens} row={token} />)
+						)}
+						<TableRow>
+							<TableCell colSpan={7} className="rounded-b-xl border-t border-gray-700 px-7 py-4">
+								<Pagination
+									currentPage={currentPage}
+									totalPages={totalPages}
+									totalItems={tokens.length}
+									itemsPerPage={itemsPerPage}
+									onPageChange={handlePageChange}
+								/>
+							</TableCell>
+						</TableRow>
 					</TableBody>
 				</Table>
 			</div>
-
-			<Pagination
-				currentPage={currentPage}
-				totalPages={totalPages}
-				totalItems={tokens.length}
-				itemsPerPage={itemsPerPage}
-				onPageChange={handlePageChange}
-			/>
-		</div>
+		</Loader>
 	);
 }
