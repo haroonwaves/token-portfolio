@@ -10,6 +10,7 @@ import {
 import { Pagination } from '@/components/ui/pagination';
 import { Loader } from '@/components/ui/loader';
 import { ListRow } from '@/components/watchlist/ListRow';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 import { type Token } from '@/store/watchlistSlice';
 import { type CoinGeckoCoin } from '@/api/coingecko';
@@ -64,46 +65,51 @@ export function Watchlist({ tokens, prices, loading }: WatchlistProps) {
 	return (
 		<Loader isLoading={loading}>
 			<div className="rounded-xl border">
-				<Table className="overflow-hidden">
-					<TableHeader>
-						<TableRow className="dark-2 hover:dark-2! rounded-t-xl!">
-							<TableHead className="rounded-tl-xl! px-7 py-5 text-left font-medium text-[#A1A1AA]">
-								Token
-							</TableHead>
-							<TableHead className="text-left font-medium text-[#A1A1AA]">Price</TableHead>
-							<TableHead className="text-left font-medium text-[#A1A1AA]">24h %</TableHead>
-							<TableHead className="text-left font-medium text-[#A1A1AA]">Sparkline (7d)</TableHead>
-							<TableHead className="text-left font-medium text-[#A1A1AA]">Holdings</TableHead>
-							<TableHead className="text-left font-medium text-[#A1A1AA]">Value</TableHead>
-							<TableHead className="w-12 rounded-tr-xl! font-medium text-[#A1A1AA]"></TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{tokens.length === 0 ? (
+				<ScrollArea className="rounded-t-xl">
+					<Table containerClassName="rounded-t-xl" className="overflow-hidden">
+						<TableHeader>
+							<TableRow className="dark-2 hover:dark-2! rounded-t-xl!">
+								<TableHead className="rounded-tl-xl! px-7 py-5 text-left font-medium text-[#A1A1AA]">
+									Token
+								</TableHead>
+								<TableHead className="text-left font-medium text-[#A1A1AA]">Price</TableHead>
+								<TableHead className="text-left font-medium text-[#A1A1AA]">24h %</TableHead>
+								<TableHead className="text-left font-medium text-[#A1A1AA]">
+									Sparkline (7d)
+								</TableHead>
+								<TableHead className="text-left font-medium text-[#A1A1AA]">Holdings</TableHead>
+								<TableHead className="text-left font-medium text-[#A1A1AA]">Value</TableHead>
+								<TableHead className="w-12 rounded-tr-xl! font-medium text-[#A1A1AA]"></TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{tokens.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={7} className="py-8">
+										<div className="flex h-26 flex-col items-center justify-center text-[#A1A1AA]/60">
+											<p className="text-lg font-medium">No tokens in watchlist</p>
+											<p className="text-sm">Add tokens to start tracking prices</p>
+										</div>
+									</TableCell>
+								</TableRow>
+							) : (
+								paginatedData.map((token) => <ListRow key={token.id} tokens={tokens} row={token} />)
+							)}
 							<TableRow>
-								<TableCell colSpan={7} className="py-8">
-									<div className="flex h-26 flex-col items-center justify-center text-[#A1A1AA]/60">
-										<p className="text-lg font-medium">No tokens in watchlist</p>
-										<p className="text-sm">Add tokens to start tracking prices</p>
-									</div>
+								<TableCell colSpan={7} className="rounded-b-xl border-t px-7 py-4">
+									<Pagination
+										currentPage={currentPage}
+										totalPages={totalPages}
+										totalItems={tokens.length}
+										itemsPerPage={itemsPerPage}
+										onPageChange={handlePageChange}
+									/>
 								</TableCell>
 							</TableRow>
-						) : (
-							paginatedData.map((token) => <ListRow key={token.id} tokens={tokens} row={token} />)
-						)}
-						<TableRow>
-							<TableCell colSpan={7} className="rounded-b-xl border-t px-7 py-4">
-								<Pagination
-									currentPage={currentPage}
-									totalPages={totalPages}
-									totalItems={tokens.length}
-									itemsPerPage={itemsPerPage}
-									onPageChange={handlePageChange}
-								/>
-							</TableCell>
-						</TableRow>
-					</TableBody>
-				</Table>
+						</TableBody>
+					</Table>
+					<ScrollBar orientation="horizontal" />
+				</ScrollArea>
 			</div>
 		</Loader>
 	);

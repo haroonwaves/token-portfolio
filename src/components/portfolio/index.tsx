@@ -11,12 +11,14 @@ import { tokenColor } from '@/components/portfolio/utils';
 
 import { type Token } from '@/store/watchlistSlice';
 import { type CoinGeckoCoin } from '@/api/coingecko';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PortfolioProps {
 	tokens: Token[];
 	prices: CoinGeckoCoin[];
 	loading: boolean;
 	lastUpdated?: Date;
+	error: string | null;
 }
 
 const chartConfig: ChartConfig = {
@@ -26,7 +28,7 @@ const chartConfig: ChartConfig = {
 	},
 };
 
-export function Portfolio({ tokens, prices, lastUpdated, loading }: PortfolioProps) {
+export function Portfolio({ tokens, prices, lastUpdated, loading, error }: PortfolioProps) {
 	const portfolioData = useMemo(() => {
 		const totalValue = tokens.reduce((sum, token) => {
 			const price = prices.find((p) => p.id === token.id);
@@ -74,10 +76,10 @@ export function Portfolio({ tokens, prices, lastUpdated, loading }: PortfolioPro
 				{portfolioData.chartData.length > 0 ? (
 					<div className="flex flex-col lg:flex-row lg:gap-12">
 						{/* Portfolio Total - Left on desktop, top on mobile */}
-						<div className="mb-8 flex flex-col justify-between lg:mb-0 lg:w-1/3 xl:w-1/2">
+						<div className="mb-4 flex flex-col justify-between lg:mb-0 lg:w-1/3 xl:w-1/2">
 							<div>
-								<h2 className="mb-4 text-lg font-medium text-[#A1A1AA]">Portfolio Total</h2>
-								<h3 className="mb-4 text-3xl font-medium text-[#F4F4F5] lg:text-5xl">
+								<h2 className="mb-2 text-lg font-medium text-[#A1A1AA] lg:mb-4">Portfolio Total</h2>
+								<h3 className="mb-4 text-4xl font-medium text-[#F4F4F5] lg:text-5xl">
 									{formatCurrency(portfolioData.totalValue)}
 								</h3>
 							</div>
@@ -88,12 +90,14 @@ export function Portfolio({ tokens, prices, lastUpdated, loading }: PortfolioPro
 
 						{/* Chart and Legend - Right on desktop, bottom on mobile */}
 						<div className="lg:flex-1">
-							<h2 className="text-lg font-medium text-[#A1A1AA]">Breakdown</h2>
+							<h2 className="mt-4 mb-4 text-lg font-medium text-[#A1A1AA] lg:mt-0">
+								Portfolio Breakdown
+							</h2>
 
 							<div className="flex flex-col lg:flex-row lg:items-center">
 								{/* Donut Chart */}
 								<div className="m-auto flex-shrink-0">
-									<ChartContainer config={chartConfig} className="h-80 w-80 lg:h-64 lg:w-64">
+									<ChartContainer config={chartConfig} className="mr-8 mb-8 h-50 w-50">
 										<PieChart>
 											<Pie
 												data={portfolioData.chartData}
@@ -117,28 +121,36 @@ export function Portfolio({ tokens, prices, lastUpdated, loading }: PortfolioPro
 								</div>
 
 								{/* Legend */}
-								<div className="flex-1 space-y-4">
-									{portfolioData.chartData.map((item, index) => (
-										<div key={index} className="flex items-center justify-between">
-											<p className="text-sm font-medium" style={{ color: item.color }}>
-												{item.name} ({item.symbol.toUpperCase()})
-											</p>
-											<div className="text-right">
-												<div className="text-sm font-medium text-[#A1A1AA]">
-													{item.percentage.toFixed(1)}%
+								<ScrollArea className="h-full w-full overflow-y-auto">
+									<div className="max-h-64 flex-1 space-y-4">
+										{portfolioData.chartData.map((item, index) => (
+											<div key={index} className="flex items-center justify-between">
+												<p className="text-sm font-medium" style={{ color: item.color }}>
+													{item.name} ({item.symbol.toUpperCase()})
+												</p>
+												<div className="text-right">
+													<div className="text-sm font-medium text-[#A1A1AA]">
+														{item.percentage.toFixed(1)}%
+													</div>
 												</div>
 											</div>
-										</div>
-									))}
-								</div>
+										))}
+									</div>
+								</ScrollArea>
 							</div>
 						</div>
 					</div>
 				) : !loading ? (
 					<div className="flex h-64 items-center justify-center text-[#A1A1AA]/60">
 						<div className="text-center">
-							<p className="text-lg font-medium">No holdings in watchlist</p>
-							<p className="text-sm">Add holdings to see your portfolio breakdown</p>
+							<p className="text-lg font-medium">
+								{error ? 'Something went wrong' : 'No holdings in watchlist'}
+							</p>
+							<p className="text-sm">
+								{error
+									? 'Please try after sometime'
+									: 'Add holdings to see your portfolio breakdown'}
+							</p>
 						</div>
 					</div>
 				) : null}

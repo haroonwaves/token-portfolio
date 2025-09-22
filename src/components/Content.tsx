@@ -30,8 +30,8 @@ export function Content() {
 
 	return (
 		<main>
-			<div className="mx-auto px-2 py-4 lg:px-24 lg:py-8">
-				<div className="space-y-7 sm:space-y-18">
+			<div className="lg:p mx-auto px-2 py-8 lg:px-24">
+				<div className="space-y-12 sm:space-y-18">
 					{/* Portfolio Section */}
 					<div className="dark-2 rounded-xl p-4 lg:p-8">
 						<Portfolio
@@ -39,6 +39,7 @@ export function Content() {
 							prices={prices}
 							lastUpdated={lastUpdated}
 							loading={loading}
+							error={error}
 						/>
 					</div>
 
@@ -55,7 +56,7 @@ export function Content() {
 								<Button
 									onClick={refresh}
 									className={`custom-button-2!`}
-									disabled={loading || (prices.length === 0 && !error)}
+									disabled={loading || (tokens.length === 0 && !error)}
 								>
 									<RefreshCcw
 										className={`h-4 w-4 transition-transform duration-300 ${loading ? 'animate-spin' : ''}`}

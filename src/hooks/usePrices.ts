@@ -32,6 +32,7 @@ export function usePrices(ids: string[]): UsePricesResult {
 				...prev,
 				loading: false,
 				error: errorMessage,
+				refresh: fetch,
 			}));
 		}
 	}, [ids]);

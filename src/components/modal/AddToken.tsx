@@ -24,17 +24,18 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 	const [trendingTokens, setTrendingTokens] = useState<SearchResult[]>([]);
 	const [selectedTokens, setSelectedTokens] = useState<Set<string>>(new Set());
 	const [loading, setLoading] = useState(false);
+	const [isError, setIsError] = useState(false);
 
 	const debouncedSearch = useDebounce<string>(searchTerm, 300);
 
-	console.log(selectedTokens);
-
 	const loadTrending = async () => {
 		try {
+			setIsError(false);
 			setLoading(true);
 			const trending = await fetchTrending();
 			setTrendingTokens(trending);
 		} catch {
+			setIsError(true);
 			toast.error('Failed to load trending tokens');
 		} finally {
 			setLoading(false);
@@ -43,10 +44,12 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 
 	const searchForTokens = async (query: string) => {
 		try {
+			setIsError(false);
 			setLoading(true);
 			const results = await fetchTokens(query);
 			setSearchResults(results);
 		} catch {
+			setIsError(true);
 			toast.error('Failed to search tokens');
 		} finally {
 			setLoading(false);
@@ -132,8 +135,14 @@ export function AddToken({ onAddTokens, existingTokens }: AddTokenProps) {
 							)}
 							{!loading && displayTokens.length === 0 ? (
 								<div className="flex h-[400px] flex-col items-center justify-center px-3 py-8 text-center text-[#A1A1AA]/60">
-									<p className="text-lg font-medium">No tokens found</p>
-									{debouncedSearch && <p className="text-sm">Try a different search term</p>}
+									<p className="text-lg font-medium">
+										{isError ? 'Something went wrong' : 'No tokens found'}
+									</p>
+									{(debouncedSearch || isError) && (
+										<p className="text-sm">
+											{isError ? 'Please try after sometime' : 'Try a different search term'}
+										</p>
+									)}
 								</div>
 							) : (
 								<ScrollArea className="h-[400px] px-3 py-2">
